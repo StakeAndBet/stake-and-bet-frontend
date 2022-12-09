@@ -13,7 +13,7 @@ import { NotificationsProvider } from "@mantine/notifications";
 import Main from "./Main";
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.goerli, chain.foundry],
+  [chain.goerli, chain.foundry],
   [publicProvider()]
 );
 
