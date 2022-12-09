@@ -6,14 +6,9 @@ import {
   Navbar,
   Header,
   NavLink,
-  Group,
   Flex,
   Footer,
   Aside,
-  Text,
-  MediaQuery,
-  Burger,
-  useMantineTheme,
 } from "@mantine/core";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getContract } from "@wagmi/core";

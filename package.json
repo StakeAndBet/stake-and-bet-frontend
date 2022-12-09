@@ -10,6 +10,7 @@
     "@mantine/hooks": "^5.9.2",
     "@mantine/notifications": "^5.9.2",
     "@rainbow-me/rainbowkit": "^0.8.0",
+    "@tabler/icons": "^1.116.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -19,6 +20,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.4",
     "react-scripts": "5.0.1",
+    "tabler": "^1.0.0-alpha.8",
     "wagmi": "^0.8.6",
     "web-vitals": "^2.1.4"
   },
