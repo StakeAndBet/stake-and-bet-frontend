@@ -17,6 +17,8 @@ import { useProvider, useSigner, erc20ABI } from "wagmi";
 import StableSwap from "./pages/stable-swap";
 import ManageBets from "./pages/manage-bets";
 import Stacking from "./pages/stacking";
+import ClaimRewardsButton from "./components/claim-rewards-button";
+
 import {
   BET_TOKEN_ABI,
   BET_STABLE_SWAP_ABI,
@@ -71,6 +73,7 @@ function Main() {
   const [betTokenBalance, setBetTokenBalance] = useState(0);
   const [betTokensToClaimFromBetManager, setBetTokensToClaimFromBetManager] =
     useState(0);
+  const [betTokensToClaimFromBetPool, setBetTokensToClaimFromBetPool] = useState(0);
 
   // Fetch user token balance
   useEffect(() => {
@@ -97,6 +100,18 @@ function Main() {
             });
         })
       );
+
+      // Fetch stacking rewards to claim on each block
+      subscriptions.push(
+        provider.on("block", async (block) => {
+          betPoolContract
+            .earned(signer.getAddress())
+            .then((tokensToClaim) => {
+              setBetTokensToClaimFromBetPool(tokensToClaim);
+            });
+        })
+      );
+      
       return () => {
         subscriptions.forEach((subscription) =>
           subscription.removeAllListeners()
@@ -155,6 +170,13 @@ function Main() {
                 wrap="nowrap"
               >
                 <Title order={1}>Stake & Bet</Title>
+                <ClaimRewardsButton
+                  signer={signer}
+                  betManagerContract={betManagerContract}
+                  betPoolContract={betPoolContract}
+                  betTokensToClaimFromBetManager={betTokensToClaimFromBetManager}
+                  betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
+                  />
                 <ConnectButton />
               </Flex>
             </Header>
@@ -193,6 +215,7 @@ function Main() {
                     betTokenContract={betTokenContract}
                     betPoolContract={betPoolContract}
                     betTokenBalance={betTokenBalance}
+                    betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
                   />
                 }
               />
