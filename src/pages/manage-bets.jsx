@@ -1,23 +1,21 @@
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Group,
-  Box,
-  Select,
-  Progress,
-  Table,
-  Modal,
-} from "@mantine/core";
-import { BigNumber, ethers } from "ethers";
+import { Button, Progress, Table, Modal } from "@mantine/core";
+import { ethers } from "ethers";
 import PlaceBets from "../components/place-bets";
 
-function ManageBets({ signer, betTokenContract, betManagerContract }) {
+function ManageBets({
+  signer,
+  betTokenContract,
+  betManagerContract,
+  betTokenBalance,
+}) {
   const [bettingSessions, setBettingSessions] = useState([]);
   const [isFetchingBettingSessions, setIsFetchingBettingSessions] =
     useState(false);
   const [fetchingBettingSessionsProgress, setFetchingBettingSessionsProgress] =
     useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
 
   const convertTimestampToDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
@@ -84,6 +82,11 @@ function ManageBets({ signer, betTokenContract, betManagerContract }) {
           const bettingSession = await betManagerContract.bettingSessions(
             bettingSessionId
           );
+          const totalTokensBetByUser =
+            await betManagerContract.totalTokensBetPerSessionIdPerUser(
+              bettingSessionId,
+              signer.getAddress()
+            );
           return {
             id: bettingSessionId,
             startTimestamp: bettingSession.startTimestamp,
@@ -91,6 +94,7 @@ function ManageBets({ signer, betTokenContract, betManagerContract }) {
             twitterUserId: bettingSession.twitterUserId,
             betResult: bettingSession.betResult,
             totalTokensBet: bettingSession.totalTokensBet,
+            totalTokensBetByUser: totalTokensBetByUser,
             state: bettingSession.state,
           };
         })
@@ -101,8 +105,10 @@ function ManageBets({ signer, betTokenContract, betManagerContract }) {
   };
 
   useEffect(() => {
-    fetchBettingSessions();
-  }, []);
+    if (!isModalOpen) {
+      fetchBettingSessions();
+    }
+  }, [isModalOpen]);
 
   const rows = bettingSessions.map((bettingSession) => {
     const startDate = convertTimestampToDate(bettingSession.startTimestamp);
@@ -114,6 +120,9 @@ function ManageBets({ signer, betTokenContract, betManagerContract }) {
     const totalTokensBet = ethers.utils.formatEther(
       bettingSession.totalTokensBet
     );
+    const totalTokensBetByUser = ethers.utils.formatEther(
+      bettingSession.totalTokensBetByUser
+    );
     const betResult = ethers.utils.formatEther(bettingSession.betResult);
 
     return (
@@ -122,13 +131,21 @@ function ManageBets({ signer, betTokenContract, betManagerContract }) {
         <td>{startDate}</td>
         <td>{endDate}</td>
         <td>{betResult}</td>
+        <td>{totalTokensBetByUser}</td>
         <td>{totalTokensBet}</td>
         <td>{state}</td>
         <td>
           {
             <Button
-              disabled={state === "Closed"}
-              onClick={() => setIsModalOpen(true)}
+              disabled={
+                state === "Closed" ||
+                state === "Settled" ||
+                state === "Result Requested"
+              }
+              onClick={() => {
+                setIsModalOpen(true);
+                setSelectedSessionId(bettingSession.id);
+              }}
             >
               Place Bets
             </Button>
@@ -149,6 +166,9 @@ function ManageBets({ signer, betTokenContract, betManagerContract }) {
           signer={signer}
           betTokenContract={betTokenContract}
           betManagerContract={betManagerContract}
+          betTokenBalance={betTokenBalance}
+          sessionId={selectedSessionId}
+          closeModalCallback={() => setIsModalOpen(false)}
         />
       </Modal>
       {isFetchingBettingSessions ? (
@@ -164,9 +184,10 @@ function ManageBets({ signer, betTokenContract, betManagerContract }) {
               <th>Start</th>
               <th>End</th>
               <th>Bet Result</th>
-              <th>Total Tokens Bet</th>
+              <th>Your Tokens Bet</th>
+              <th>All Tokens Bet</th>
               <th>Session State</th>
-              <th>Bet</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>{rows}</tbody>

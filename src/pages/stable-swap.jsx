@@ -1,13 +1,6 @@
-import {
-  Button,
-  Center,
-  Group,
-  NumberInput,
-  Text,
-  Switch,
-} from "@mantine/core";
+import { Button, Group, NumberInput, Switch } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { showNotification } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons";
 
@@ -16,7 +9,7 @@ function StableSwap({
   betTokenContract,
   betStableSwapContract,
   stableTokenContract,
-  betTokenBalance
+  betTokenBalance,
 }) {
   // State variables
   const [swapRatio, setSwapRatio] = useState(0);

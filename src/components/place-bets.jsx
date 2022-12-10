@@ -1,23 +1,112 @@
 import { useState, useEffect } from "react";
 import { NumberInput, Button, Group, CloseButton, Table } from "@mantine/core";
+import { showNotification } from "@mantine/notifications";
+import { IconCheck, IconX } from "@tabler/icons";
+import { ethers } from "ethers";
 
-function PlaceBets({ signer, betTokenContract, betManagerContract }) {
-  const [betTokenBalance, setBetTokenBalance] = useState(0);
-
+function PlaceBets({
+  signer,
+  betTokenContract,
+  betManagerContract,
+  betTokenBalance,
+  sessionId,
+  closeModalCallback,
+}) {
   const [inputBet, setInputBet] = useState(0);
   const [inputMultiplier, setInputMultiplier] = useState(1);
   const [bets, setBets] = useState([]);
-
   const [betRows, setBetRows] = useState(null);
 
-  const getBetTokenBalance = async () => {
-    const balance = await betTokenContract.balanceOf(signer.getAddress());
-    console.log("balance", balance.toString());
-    setBetTokenBalance(balance);
+  const [totalTokensBetByUser, setTotalTokensBetByUser] = useState(0);
+
+  const [tokenAmountPerBet, setTokenAmountPerBet] = useState(0);
+  const [maxTokensPerSession, setMaxTokensPerSession] = useState(0);
+
+  const [isPlaceBetsButtonLoading, setIsPlaceBetsButtonLoading] =
+    useState(false);
+  const [isApproveButtonLoading, setIsApproveButtonLoading] = useState(false);
+
+  const [isBetTokenApproved, setIsBetTokenApproved] = useState(false);
+
+  const maxBetsNumber = () => {
+    return maxTokensPerSession / tokenAmountPerBet;
+  };
+
+  const isTokenApproved = async (token) => {
+    const allowance = await token.allowance(
+      signer.getAddress(),
+      betManagerContract.address
+    );
+    return allowance > 0;
+  };
+
+  const approveToken = async () => {
+    setIsApproveButtonLoading(true);
+    betTokenContract
+      .approve(betManagerContract.address, ethers.constants.MaxUint256)
+      .then((tx) => {
+        tx.wait().then((receipt) => {
+          if (receipt.status === 1) {
+            setIsBetTokenApproved(true);
+            showNotification({
+              icon: <IconCheck />,
+              color: "teal",
+              title: "Approve success",
+            });
+          }
+        });
+      })
+      .catch((err) => {
+        console.log("Approve failed", err);
+        showNotification({
+          icon: <IconX />,
+          color: "red",
+          title: "Approve failed",
+          message: err.message,
+        });
+      })
+      .finally(() => {
+        setIsApproveButtonLoading(false);
+      });
   };
 
   // Add bet to bets array but combine with existing bet if it exists by cumulative multiplier
   const addBets = async () => {
+    const totalMultiplier = bets
+      .map((bet) => bet.multiplier)
+      .reduce((a, b) => a + b, 0);
+
+    // Check if user isn't exceeding max bets per session
+    if (
+      totalMultiplier +
+        inputMultiplier +
+        totalTokensBetByUser / tokenAmountPerBet >
+      maxBetsNumber()
+    ) {
+      showNotification({
+        icon: <IconX />,
+        color: "red",
+        title: "Failed to place bets",
+        message: "You are exceeding max bets number. Please reduce your bets.",
+      });
+      return;
+    }
+
+    // Check if user has enough balance to place bets
+    if (
+      (totalMultiplier + inputMultiplier) * tokenAmountPerBet >
+      betTokenBalance
+    ) {
+      showNotification({
+        icon: <IconX />,
+        color: "red",
+        title: "Failed to place bets",
+        message: "You don't have enough balance to place these bets.",
+      });
+      return;
+    }
+
+    // Check if bet already exists in bets array and combine if it does
     let bet = bets.find((bet) => bet.tweets === inputBet);
     if (bet) {
       const _bets = bets.map((_bet) => {
@@ -32,9 +121,49 @@ function PlaceBets({ signer, betTokenContract, betManagerContract }) {
     }
   };
 
-  useEffect(() => {
-    getBetTokenBalance();
-  }, []);
+  // Place bets on chain
+  const placeBets = async () => {
+    setIsPlaceBetsButtonLoading(true);
+    // Convert bets array to a flattened array of tweets and multipliers
+    const _bets = bets
+      .map((bet) => {
+        const b = new Array(bet.multiplier).fill(bet.tweets);
+        return b;
+      })
+      .flat();
+
+    betManagerContract
+      .placeBets(sessionId, _bets)
+      .then((tx) => {
+        tx.wait().then((receipt) => {
+          //console.log("receipt", receipt.events.BetPlaced);
+          if (receipt.status === 1) {
+            showNotification({
+              icon: <IconCheck />,
+              color: "green",
+              title: "Bets placed",
+              message: "Your bets have been placed successfully.",
+            });
+
+            setBets([]);
+            setInputBet(0);
+            setInputMultiplier(1);
+            closeModalCallback();
+          }
+        });
+      })
+      .catch((err) => {
+        showNotification({
+          icon: <IconX />,
+          color: "red",
+          title: "Failed to place bets",
+          message: err.message,
+        });
+      })
+      .finally(() => {
+        setIsPlaceBetsButtonLoading(false);
+      });
+  };
 
   useEffect(() => {
     const _betRows = bets.map((bet, index) => {
@@ -43,11 +172,9 @@ function PlaceBets({ signer, betTokenContract, betManagerContract }) {
           <td>{bet.tweets}</td>
           <td>{bet.multiplier}</td>
           <td>
-            {
-              <CloseButton
-                onClick={() => setBets(bets.filter((b) => b !== bet))}
-              />
-            }
+            <CloseButton
+              onClick={() => setBets(bets.filter((b) => b !== bet))}
+            />
           </td>
         </tr>
       );
@@ -55,9 +182,44 @@ function PlaceBets({ signer, betTokenContract, betManagerContract }) {
     setBetRows(_betRows);
   }, [bets]);
 
+  useEffect(() => {
+    const getBetTokenAmountPerBet = async () => {
+      const _tokenAmountPerBet =
+        await betManagerContract.TOKEN_AMOUNT_PER_BET();
+      setTokenAmountPerBet(_tokenAmountPerBet);
+    };
+    getBetTokenAmountPerBet();
+    const getMaxTokensPerSession = async () => {
+      const _maxTokensPerSession =
+        await betManagerContract.MAX_TOKENS_PER_SESSION();
+      setMaxTokensPerSession(_maxTokensPerSession);
+    };
+    getMaxTokensPerSession();
+  }, []);
+
+  useEffect(() => {
+    const getTotalTokensBetByUser = async () => {
+      const _totalTokensBetByUser =
+        await betManagerContract.totalTokensBetPerSessionIdPerUser(
+          sessionId,
+          signer.getAddress()
+        );
+      setTotalTokensBetByUser(_totalTokensBetByUser);
+    };
+    getTotalTokensBetByUser();
+  }, [betTokenBalance]);
+
+  useEffect(() => {
+    const checkBetTokenApproval = async () => {
+      const _isBetTokenApproved = await isTokenApproved(betTokenContract);
+      setIsBetTokenApproved(_isBetTokenApproved);
+    };
+    checkBetTokenApproval();
+  }, []);
+
   return (
     <>
-      <Group noWrap={true}>
+      <Group noWrap={true} align="center">
         <NumberInput
           defaultValue={0}
           min={0}
@@ -72,17 +234,33 @@ function PlaceBets({ signer, betTokenContract, betManagerContract }) {
           value={inputMultiplier}
           onChange={(value) => setInputMultiplier(value)}
         />
+        <Button onClick={() => addBets()}>Add bet</Button>
       </Group>
-      <Button onClick={() => addBets()}>Add bet</Button>
       <Table>
         <thead>
           <tr>
             <th>Tweets</th>
             <th>Multiplier</th>
+            <th>Remove</th>
           </tr>
         </thead>
         <tbody>{betRows}</tbody>
       </Table>
+
+      {isBetTokenApproved ? (
+        <Button
+          fullWidth
+          loading={isPlaceBetsButtonLoading}
+          onClick={() => placeBets()}
+          disabled={bets.length === 0}
+        >
+          Place bets
+        </Button>
+      ) : (
+        <Button loading={isApproveButtonLoading} onClick={() => approveToken()}>
+          Approve
+        </Button>
+      )}
     </>
   );
 }
