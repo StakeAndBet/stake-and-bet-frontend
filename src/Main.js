@@ -14,6 +14,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getContract } from "@wagmi/core";
 import { useSigner, erc20ABI } from "wagmi";
 import StableSwap from "./pages/stable-swap";
+import Stacking from "./pages/stacking";
 import {
   BET_TOKEN_ABI,
   BET_STABLE_SWAP_ABI,
@@ -94,6 +95,14 @@ function Main() {
                   active={location.pathname === "/stable-swap"}
                 />
               </Navbar.Section>
+              <Navbar.Section>
+                <NavLink
+                  label="Stacking"
+                  component={Link}
+                  to="/stacking"
+                  active={location.pathname === "/stacking"}
+                />
+              </Navbar.Section>
             </Navbar>
           }
           header={
@@ -121,6 +130,16 @@ function Main() {
                     betTokenContract={betTokenContract}
                     betStableSwapContract={betStableSwapContract}
                     stableTokenContract={stableTokenContract}
+                  />
+                }
+              />
+              <Route
+                path="stacking"
+                element={
+                  <Stacking
+                    signer={signer}
+                    betTokenContract={betTokenContract}
+                    betPoolContract={betPoolContract}
                   />
                 }
               />
