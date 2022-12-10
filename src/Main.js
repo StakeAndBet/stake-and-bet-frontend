@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Routes, Route, Link, useLocation } from "react-router-dom";
 import {
   Title,
   Box,
@@ -111,7 +111,7 @@ function Main() {
             });
         })
       );
-      
+
       return () => {
         subscriptions.forEach((subscription) =>
           subscription.removeAllListeners()
@@ -176,7 +176,7 @@ function Main() {
                   betPoolContract={betPoolContract}
                   betTokensToClaimFromBetManager={betTokensToClaimFromBetManager}
                   betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
-                  />
+                />
                 <ConnectButton />
               </Flex>
             </Header>
