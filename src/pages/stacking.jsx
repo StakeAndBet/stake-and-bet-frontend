@@ -12,40 +12,21 @@ import { BigNumber, ethers } from "ethers";
 import { showNotification } from "@mantine/notifications";
 import { IconCheck, IconX } from "@tabler/icons";
 
-
-// The purpose of this component is to display the Stacking page.
-// This page will allow users to stake their SAB tokens in the SAB pool, and earn more SAB tokens.
-// The page will display the following information : 
-// - The current SAB in the reward pool
-// - The current SAB in the stacking pool
-// - The current SAB pool APY
-// - The current SAB pool APR
-// - The current user SAB reward
-
-// The following buttons will be displayed:
-// - Stake SAB (function stake() of the betPoolContract)
-// - Unstake SAB (function exit() of the betPoolContract)
-// - Claim SAB (function getReward() of the betPoolContract)
-
-// TODO : update user SAB reward every X seconds, aswell as the APR
-
-
 function Stacking({
     signer,
     betTokenContract,
     betPoolContract,
-    betTokenBalance
+    betTokenBalance,
+    betTokensToClaimFromBetPool,
 }) {
 
     // State variables
-    const [totalSabInStackingPool, setTotalSabInStackingPool] = useState(0);
-    const [sabPoolRewardPerToken, setSabPoolRewardPerToken] = useState(0);
-    const [sabPoolAPR, setSabPoolAPR] = useState(0);
-    const [sabInRewardPool, setSabInRewardPool] = useState(0);
-    const [sabUserTokenInStackingPool, setSabUserTokenInStackingPool] = useState(0);
-    const [sabUserReward, setSabUserReward] = useState(0);
-//    const [sabUserBalance, setSabUserBalance] = useState();
-    const [sabAmountToStake, setSabAmountToStake] = useState(0);
+    const [totalBetTokensInStackingPool, setTotalBetTokensInStackingPool] = useState(0);
+    const [betPoolRewardPerToken, setBetPoolRewardPerToken] = useState(0);
+    const [betPoolAPR, setBetPoolAPR] = useState(0);
+    const [betTokensInRewardPool, setBetTokensInRewardPool] = useState(0);
+    const [userBetTokensInStackingPool, setUserbetTokensInStackingPool] = useState(0);
+    const [amountToStake, setAmountToStake] = useState(0);
     const [isButtonLoading, setIsButtonLoading] = useState(false);
     const [isWithdrawButtonLoading, setIsWithdrawButtonLoading] = useState(false);
     const [isTokenInApproved, setIsTokenInApproved] = useState(false);
@@ -53,37 +34,25 @@ function Stacking({
     const [defaultStakingRewardDistributionDuration, setDefaultStakingRewardDistributionDuration] = useState(7);
 
     const getStakingInfo = async () => {
-        const getTotalSabInStackingPool = await betPoolContract.totalSupply();
-        setTotalSabInStackingPool(getTotalSabInStackingPool);
-        const getSabPoolRewardPerToken = await betPoolContract.rewardPerTokenStored();
-        setSabPoolRewardPerToken(getSabPoolRewardPerToken);
-        const getSabUserReward = await betPoolContract.earned(signer.getAddress());
-        setSabUserReward(getSabUserReward);
-        const getSabInRewardPool = await betTokenContract.balanceOf(betPoolContract.address);
-        setSabInRewardPool(getSabInRewardPool.sub(getTotalSabInStackingPool));
-        const getSabUserTokenInStackingPool = await betPoolContract.balanceOf(signer.getAddress());
-        setSabUserTokenInStackingPool(getSabUserTokenInStackingPool);
- //       const balance = await betTokenContract.balanceOf(signer.getAddress());
-//        setSabUserBalance(balance);
-
+        const getTotalBetTokensInStackingPool = await betPoolContract.totalSupply();
+        setTotalBetTokensInStackingPool(getTotalBetTokensInStackingPool);
+        const getBetPoolRewardPerToken = await betPoolContract.rewardPerTokenStored();
+        setBetPoolRewardPerToken(getBetPoolRewardPerToken);
+        const getBetTokensInRewardPool = await betTokenContract.balanceOf(betPoolContract.address);
+        setBetTokensInRewardPool(getBetTokensInRewardPool.sub(getTotalBetTokensInStackingPool));
+        const getUserbetTokensInStackingPool = await betPoolContract.balanceOf(signer.getAddress());
+        setUserbetTokensInStackingPool(getUserbetTokensInStackingPool);
     };
-
-    // setInterval(() => {
-    //     betPoolContract.earned(signer.getAddress()).then((userReward) => {
-    //         setSabUserReward(userReward);
-    //         console.log("userReward : ", ethers.utils.formatEther(userReward))
-    //     });
-    // }, 2000);
 
     // APR = (Total Staking Rewards / Total Staked Tokens) x(365 / Length of Staking Period) x 100
     // Where ‘Total Staking Rewards’ is the total rewards earned from staking, ‘Total Staked Tokens’ is the total amount of tokens staked, and ‘Length of Staking Period’ is the length of time for which the tokens were staked.
 
     const calculateAPR = () => {
-        if (sabInRewardPool === 0 || totalSabInStackingPool === 0) return;
-        const totalStakingRewards = ethers.utils.formatEther(sabInRewardPool);
-        const totalStakedTokens = ethers.utils.formatEther(totalSabInStackingPool);
+        if (betTokensInRewardPool === 0 || totalBetTokensInStackingPool === 0) return;
+        const totalStakingRewards = ethers.utils.formatEther(betTokensInRewardPool);
+        const totalStakedTokens = ethers.utils.formatEther(totalBetTokensInStackingPool);
         const apr = totalStakingRewards / totalStakedTokens * 365 / defaultStakingRewardDistributionDuration * 100;
-        setSabPoolAPR(apr);
+        setBetPoolAPR(apr);
     };
 
     const getIsTokenInApproved = async () => {
@@ -131,7 +100,7 @@ function Stacking({
 
     const stake = async () => {
         setIsButtonLoading(true);
-        betPoolContract.stake(ethers.utils.parseEther(sabAmountToStake.toString()))
+        betPoolContract.stake(ethers.utils.parseEther(amountToStake.toString()))
             .then((tx) => {
                 tx.wait().then((receipt) => {
                     if (receipt.status === 1) {
@@ -245,7 +214,7 @@ function Stacking({
                 >
                     Reward pool :
                     <br></br>
-                    {ethers.utils.formatEther(sabInRewardPool).toString()} SAB
+                    {ethers.utils.formatEther(betTokensInRewardPool).toString()} SAB
                 </Box>
                 <Box
                     sx={(theme) => ({
@@ -263,7 +232,7 @@ function Stacking({
                 >
                     Total stacked :
                     <br></br>
-                    {ethers.utils.formatEther(totalSabInStackingPool).toString()} SAB
+                    {ethers.utils.formatEther(totalBetTokensInStackingPool).toString()} SAB
                 </Box>
                 <Box
                     sx={(theme) => ({
@@ -281,7 +250,7 @@ function Stacking({
                 >
                     APR :
                     <br></br>
-                    {sabPoolAPR} %
+                    {betPoolAPR} %
                 </Box>
                 <Box
                     sx={(theme) => ({
@@ -299,7 +268,7 @@ function Stacking({
                 >
                     Earned :
                     <br></br>
-                    {ethers.utils.formatEther(sabUserReward).toString()} SAB
+                    {ethers.utils.formatEther(betTokensToClaimFromBetPool).toString()} SAB
                 </Box>
                 <Box
                     sx={(theme) => ({
@@ -317,38 +286,36 @@ function Stacking({
                 >
                     Staked :
                     <br></br>
-                    {ethers.utils.formatEther(sabUserTokenInStackingPool).toString()} SAB
+                    {ethers.utils.formatEther(userBetTokensInStackingPool).toString()} SAB
                 </Box>
+            </Group>
+            <Group position="center" spacing="xs">
+                <Text style={{ padding: "5px 5px 0px 5px"}}>
+                    Your balance : {ethers.utils.formatEther(betTokenBalance).toString()} SAB
+                </Text>
             </Group>
             <Group position="center" spacing="xs">
                 <Text>
                     SAB
                 </Text>
-                <NumberInput
+                <NumberInput style={{ padding: "10px 5px 10px 5px" }}
                     label=""
                     precision={6}
                     min={0}
                     type="number"
                     size="md"
-                    value={sabAmountToStake}
-                    onChange={(value) => setSabAmountToStake(value || 0)}
+                    value={amountToStake}
+                    onChange={(value) => setAmountToStake(value || 0)}
                     removeTrailingZeros
                     withAsterisk
                     hideControls
                     required
                 />
-            </Group>
-            <Group position="center" spacing="xs">
-                <Text ta="bottoms">
-                    Your balance : {ethers.utils.formatEther(betTokenBalance).toString()} SAB
-                </Text>
-            </Group>
-            <Group position="center" spacing="xs">
                 {isTokenInApproved ? (
                     <Button
                         disabled={
-                            sabAmountToStake <= 0 ||
-                            ethers.utils.parseEther(sabAmountToStake.toString()).gt(betTokenBalance)
+                            amountToStake <= 0 ||
+                            ethers.utils.parseEther(amountToStake.toString()).gt(betTokenBalance)
                         }
                         loading={isButtonLoading}
                         onClick={() => stake()}
@@ -363,9 +330,12 @@ function Stacking({
                         Approve
                     </Button>
                 )}
+            </Group>
+            <Group position="center" spacing="xs">
+               
                 <Button
-                    disabled={
-                        sabUserReward == 0
+                    disabled={ 
+                        BigNumber.from(betTokensToClaimFromBetPool).eq(0)
                     }
                     loading={isWithdrawButtonLoading}
                     onClick={() => withdrawRewards()}
@@ -374,7 +344,7 @@ function Stacking({
                 </Button>
                 <Button
                     disabled={
-                        sabUserTokenInStackingPool == 0
+                        BigNumber.from(userBetTokensInStackingPool).eq(0)
                     }
                     loading={isUnstakeButtonLoading}
                     onClick={() => unstake()}
