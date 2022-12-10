@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Routes, Route, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Routes, Route, Link, useLocation, BrowserRouter } from "react-router-dom";
 import {
   Title,
   Box,
@@ -183,43 +183,45 @@ function Main() {
           }
         >
           <Box sx={{ paddingLeft: 10 }}>
-            <Routes>
-              <Route path="/" element={<h1>Home</h1>} />
-              <Route
-                path="stable-swap"
-                element={
-                  <StableSwap
-                    signer={signer}
-                    betTokenContract={betTokenContract}
-                    betStableSwapContract={betStableSwapContract}
-                    stableTokenContract={stableTokenContract}
-                  />
-                }
-              />
-              <Route
-                path="manage-bets"
-                element={
-                  <ManageBets
-                    signer={signer}
-                    betTokenContract={betTokenContract}
-                    betManagerContract={betManagerContract}
-                    betTokenBalance={betTokenBalance}
-                  />
-                }
-              />
-              <Route
-                path="stacking"
-                element={
-                  <Stacking
-                    signer={signer}
-                    betTokenContract={betTokenContract}
-                    betPoolContract={betPoolContract}
-                    betTokenBalance={betTokenBalance}
-                    betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
-                  />
-                }
-              />
-            </Routes>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<h1>Home</h1>} />
+                <Route
+                  path="stable-swap"
+                  element={
+                    <StableSwap
+                      signer={signer}
+                      betTokenContract={betTokenContract}
+                      betStableSwapContract={betStableSwapContract}
+                      stableTokenContract={stableTokenContract}
+                    />
+                  }
+                />
+                <Route
+                  path="manage-bets"
+                  element={
+                    <ManageBets
+                      signer={signer}
+                      betTokenContract={betTokenContract}
+                      betManagerContract={betManagerContract}
+                      betTokenBalance={betTokenBalance}
+                    />
+                  }
+                />
+                <Route
+                  path="stacking"
+                  element={
+                    <Stacking
+                      signer={signer}
+                      betTokenContract={betTokenContract}
+                      betPoolContract={betPoolContract}
+                      betTokenBalance={betTokenBalance}
+                      betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
+                    />
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
           </Box>
         </AppShell>
       )}
