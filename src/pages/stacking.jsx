@@ -243,9 +243,9 @@ function Stacking({
                         },
                     })}
                 >
-                    SAB in reward pool :
+                    Reward pool :
                     <br></br>
-                    {ethers.utils.formatEther(sabInRewardPool).toString()}
+                    {ethers.utils.formatEther(sabInRewardPool).toString()} SAB
                 </Box>
                 <Box
                     sx={(theme) => ({
@@ -261,9 +261,9 @@ function Stacking({
                         },
                     })}
                 >
-                    Total SAB stacked :
+                    Total stacked :
                     <br></br>
-                    {ethers.utils.formatEther(totalSabInStackingPool).toString()}
+                    {ethers.utils.formatEther(totalSabInStackingPool).toString()} SAB
                 </Box>
                 <Box
                     sx={(theme) => ({
@@ -279,7 +279,7 @@ function Stacking({
                         },
                     })}
                 >
-                    SAB pool APR :
+                    APR :
                     <br></br>
                     {sabPoolAPR} %
                 </Box>
@@ -297,9 +297,9 @@ function Stacking({
                         },
                     })}
                 >
-                    Your SAB reward :
+                    Earned :
                     <br></br>
-                    {ethers.utils.formatEther(sabUserReward).toString()}
+                    {ethers.utils.formatEther(sabUserReward).toString()} SAB
                 </Box>
                 <Box
                     sx={(theme) => ({
@@ -315,9 +315,9 @@ function Stacking({
                         },
                     })}
                 >
-                    Your SAB in pool :
+                    Staked :
                     <br></br>
-                    {ethers.utils.formatEther(sabUserTokenInStackingPool).toString()}
+                    {ethers.utils.formatEther(sabUserTokenInStackingPool).toString()} SAB
                 </Box>
             </Group>
             <Group position="center" spacing="xs">
@@ -340,7 +340,7 @@ function Stacking({
             </Group>
             <Group position="center" spacing="xs">
                 <Text ta="bottoms">
-                    Your balance : {ethers.utils.formatEther(betTokenBalance).toString()}
+                    Your balance : {ethers.utils.formatEther(betTokenBalance).toString()} SAB
                 </Text>
             </Group>
             <Group position="center" spacing="xs">

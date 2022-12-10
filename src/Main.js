@@ -69,30 +69,42 @@ function Main() {
 
   // State variables
   const [betTokenBalance, setBetTokenBalance] = useState(0);
+  const [betTokensToClaimFromBetManager, setBetTokensToClaimFromBetManager] =
+    useState(0);
 
   // Fetch user token balance
   useEffect(() => {
     if (signer) {
+      var subscriptions = [];
       const provider = signer.provider;
-      const subscription = provider.on("block", async (block) => {
-        betTokenContract.balanceOf(signer.getAddress()).then((balance) => {
-          setBetTokenBalance(balance);
-        });
-      });
+
+      // Fetch bet token balance on each block
+      subscriptions.push(
+        provider.on("block", async (block) => {
+          betTokenContract.balanceOf(signer.getAddress()).then((balance) => {
+            setBetTokenBalance(balance);
+          });
+        })
+      );
+
+      // Fetch bet rewards to claim on each block
+      subscriptions.push(
+        provider.on("block", async (block) => {
+          betManagerContract
+            .getTokenToClaim(signer.getAddress())
+            .then((tokensToClaim) => {
+              setBetTokensToClaimFromBetManager(tokensToClaim);
+            });
+        })
+      );
       return () => {
-        subscription.removeAllListeners();
+        subscriptions.forEach((subscription) =>
+          subscription.removeAllListeners()
+        );
       };
     }
   }, [signer]);
 
-  // useEffect(() => {
-  //   if (signer) {
-  //     console.log("update signer", signer);
-  //     betTokenContract.balanceOf(signer.getAddress()).then((balance) => {
-  //       console.log("betTokenContract.balanceOf", balance.toString());
-  //     });
-  //   }
-  // }, [signer]);
   return (
     <>
       {signer && (
