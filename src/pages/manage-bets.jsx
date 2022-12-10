@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Progress, Table, Modal } from "@mantine/core";
+import { Button, Progress, Table, Modal, Switch } from "@mantine/core";
 import { ethers } from "ethers";
 import PlaceBets from "../components/place-bets";
 
@@ -16,6 +16,8 @@ function ManageBets({
     useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
+
+  const [showHistory, setShowHistory] = useState(false);
 
   const convertTimestampToDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
@@ -108,52 +110,60 @@ function ManageBets({
     if (!isModalOpen) {
       fetchBettingSessions();
     }
-  }, [isModalOpen]);
+  }, [signer, isModalOpen]);
 
-  const rows = bettingSessions.map((bettingSession) => {
-    const startDate = convertTimestampToDate(bettingSession.startTimestamp);
-    const endDate = convertTimestampToDate(bettingSession.endTimestamp);
-    const state = convertSessionStateToString(
-      bettingSession.state,
-      bettingSession.startTimestamp
-    );
-    const totalTokensBet = ethers.utils.formatEther(
-      bettingSession.totalTokensBet
-    );
-    const totalTokensBetByUser = ethers.utils.formatEther(
-      bettingSession.totalTokensBetByUser
-    );
-    const betResult = ethers.utils.formatEther(bettingSession.betResult);
+  const rows = bettingSessions
+    .filter((bettingSession) => {
+      const state = convertSessionStateToString(
+        bettingSession.state,
+        bettingSession.startTimestamp
+      );
+      return showHistory ? showHistory : state != "Settled";
+    })
+    .map((bettingSession) => {
+      const startDate = convertTimestampToDate(bettingSession.startTimestamp);
+      const endDate = convertTimestampToDate(bettingSession.endTimestamp);
+      const state = convertSessionStateToString(
+        bettingSession.state,
+        bettingSession.startTimestamp
+      );
+      const totalTokensBet = ethers.utils.formatEther(
+        bettingSession.totalTokensBet
+      );
+      const totalTokensBetByUser = ethers.utils.formatEther(
+        bettingSession.totalTokensBetByUser
+      );
+      const betResult = ethers.utils.formatEther(bettingSession.betResult);
 
-    return (
-      <tr key={bettingSession.id}>
-        <td>{bettingSession.twitterUserId}</td>
-        <td>{startDate}</td>
-        <td>{endDate}</td>
-        <td>{betResult}</td>
-        <td>{totalTokensBetByUser}</td>
-        <td>{totalTokensBet}</td>
-        <td>{state}</td>
-        <td>
-          {
-            <Button
-              disabled={
-                state === "Closed" ||
-                state === "Settled" ||
-                state === "Result Requested"
-              }
-              onClick={() => {
-                setIsModalOpen(true);
-                setSelectedSessionId(bettingSession.id);
-              }}
-            >
-              Place Bets
-            </Button>
-          }
-        </td>
-      </tr>
-    );
-  });
+      return (
+        <tr key={bettingSession.id}>
+          <td>{bettingSession.twitterUserId}</td>
+          <td>{startDate}</td>
+          <td>{endDate}</td>
+          <td>{betResult}</td>
+          <td>{totalTokensBetByUser}</td>
+          <td>{totalTokensBet}</td>
+          <td>{state}</td>
+          <td>
+            {
+              <Button
+                disabled={
+                  state === "Closed" ||
+                  state === "Settled" ||
+                  state === "Result Requested"
+                }
+                onClick={() => {
+                  setIsModalOpen(true);
+                  setSelectedSessionId(bettingSession.id);
+                }}
+              >
+                Place Bets
+              </Button>
+            }
+          </td>
+        </tr>
+      );
+    });
 
   return (
     <>
@@ -177,21 +187,28 @@ function ManageBets({
           <Progress value={fetchingBettingSessionsProgress} />
         </div>
       ) : (
-        <Table withBorder withColumnBorders highlightOnHover>
-          <thead>
-            <tr>
-              <th>Twitter User Id</th>
-              <th>Start</th>
-              <th>End</th>
-              <th>Bet Result</th>
-              <th>Your Tokens Bet</th>
-              <th>All Tokens Bet</th>
-              <th>Session State</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>{rows}</tbody>
-        </Table>
+        <>
+          <Switch
+            label="Show history"
+            checked={showHistory}
+            onChange={() => setShowHistory(!showHistory)}
+          />
+          <Table withBorder withColumnBorders highlightOnHover>
+            <thead>
+              <tr>
+                <th>Twitter User Id</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Bet Result</th>
+                <th>Your Tokens Bet</th>
+                <th>All Tokens Bet</th>
+                <th>Session State</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>{rows}</tbody>
+          </Table>
+        </>
       )}
     </>
   );

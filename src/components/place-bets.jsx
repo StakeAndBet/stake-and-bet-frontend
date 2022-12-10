@@ -136,15 +136,13 @@ function PlaceBets({
       .placeBets(sessionId, _bets)
       .then((tx) => {
         tx.wait().then((receipt) => {
-          //console.log("receipt", receipt.events.BetPlaced);
-          if (receipt.status === 1) {
+          // Check if receipt contains BetsPlaced event
+          if (receipt.events.find((event) => event.event === "BetsPlaced")) {
             showNotification({
               icon: <IconCheck />,
-              color: "green",
-              title: "Bets placed",
-              message: "Your bets have been placed successfully.",
+              color: "teal",
+              title: "Bets placed successfully",
             });
-
             setBets([]);
             setInputBet(0);
             setInputMultiplier(1);
@@ -236,30 +234,36 @@ function PlaceBets({
         />
         <Button onClick={() => addBets()}>Add bet</Button>
       </Group>
-      <Table>
-        <thead>
-          <tr>
-            <th>Tweets</th>
-            <th>Multiplier</th>
-            <th>Remove</th>
-          </tr>
-        </thead>
-        <tbody>{betRows}</tbody>
-      </Table>
-
-      {isBetTokenApproved ? (
-        <Button
-          fullWidth
-          loading={isPlaceBetsButtonLoading}
-          onClick={() => placeBets()}
-          disabled={bets.length === 0}
-        >
-          Place bets
-        </Button>
-      ) : (
-        <Button loading={isApproveButtonLoading} onClick={() => approveToken()}>
-          Approve
-        </Button>
+      {bets.length > 0 && (
+        <>
+          <Table>
+            <thead>
+              <tr>
+                <th>Tweets</th>
+                <th>Multiplier</th>
+                <th>Remove</th>
+              </tr>
+            </thead>
+            <tbody>{betRows}</tbody>
+          </Table>
+          {isBetTokenApproved ? (
+            <Button
+              fullWidth
+              loading={isPlaceBetsButtonLoading}
+              onClick={() => placeBets()}
+              disabled={bets.length === 0}
+            >
+              Place bets
+            </Button>
+          ) : (
+            <Button
+              loading={isApproveButtonLoading}
+              onClick={() => approveToken()}
+            >
+              Approve
+            </Button>
+          )}
+        </>
       )}
     </>
   );
