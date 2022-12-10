@@ -118,7 +118,7 @@ function ManageBets({
         bettingSession.state,
         bettingSession.startTimestamp
       );
-      return showHistory ? showHistory : state != "Settled";
+      return showHistory ? true : state != "Closed";
     })
     .map((bettingSession) => {
       const startDate = convertTimestampToDate(bettingSession.startTimestamp);
