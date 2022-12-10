@@ -14,6 +14,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getContract } from "@wagmi/core";
 import { useSigner, erc20ABI } from "wagmi";
 import StableSwap from "./pages/stable-swap";
+import ManageBets from "./pages/manage-bets";
 import {
   BET_TOKEN_ABI,
   BET_STABLE_SWAP_ABI,
@@ -94,6 +95,14 @@ function Main() {
                   active={location.pathname === "/stable-swap"}
                 />
               </Navbar.Section>
+              <Navbar.Section>
+                <NavLink
+                  label="Manage Bets"
+                  component={Link}
+                  to="/manage-bets"
+                  active={location.pathname === "/manage-bets"}
+                />
+              </Navbar.Section>
             </Navbar>
           }
           header={
@@ -121,6 +130,16 @@ function Main() {
                     betTokenContract={betTokenContract}
                     betStableSwapContract={betStableSwapContract}
                     stableTokenContract={stableTokenContract}
+                  />
+                }
+              />
+              <Route
+                path="manage-bets"
+                element={
+                  <ManageBets
+                    signer={signer}
+                    betTokenContract={betTokenContract}
+                    betManagerContract={betManagerContract}
                   />
                 }
               />

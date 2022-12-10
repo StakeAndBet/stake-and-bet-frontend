@@ -130,7 +130,6 @@ function StableSwap({
       });
   };
 
-
   useEffect(() => {
     getTokenInBalance();
     getTokenOutBalance();
