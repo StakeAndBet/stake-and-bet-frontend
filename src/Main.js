@@ -73,7 +73,8 @@ function Main() {
   const [betTokenBalance, setBetTokenBalance] = useState(0);
   const [betTokensToClaimFromBetManager, setBetTokensToClaimFromBetManager] =
     useState(0);
-  const [betTokensToClaimFromBetPool, setBetTokensToClaimFromBetPool] = useState(0);
+  const [betTokensToClaimFromBetPool, setBetTokensToClaimFromBetPool] =
+    useState(0);
 
   // Fetch user token balance
   useEffect(() => {
@@ -104,14 +105,12 @@ function Main() {
       // Fetch stacking rewards to claim on each block
       subscriptions.push(
         provider.on("block", async (block) => {
-          betPoolContract
-            .earned(signer.getAddress())
-            .then((tokensToClaim) => {
-              setBetTokensToClaimFromBetPool(tokensToClaim);
-            });
+          betPoolContract.earned(signer.getAddress()).then((tokensToClaim) => {
+            setBetTokensToClaimFromBetPool(tokensToClaim);
+          });
         })
       );
-      
+
       return () => {
         subscriptions.forEach((subscription) =>
           subscription.removeAllListeners()
@@ -174,9 +173,11 @@ function Main() {
                   signer={signer}
                   betManagerContract={betManagerContract}
                   betPoolContract={betPoolContract}
-                  betTokensToClaimFromBetManager={betTokensToClaimFromBetManager}
+                  betTokensToClaimFromBetManager={
+                    betTokensToClaimFromBetManager
+                  }
                   betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
-                  />
+                />
                 <ConnectButton />
               </Flex>
             </Header>

@@ -45,28 +45,30 @@ function PlaceBets({
     betTokenContract
       .approve(betManagerContract.address, ethers.constants.MaxUint256)
       .then((tx) => {
-        tx.wait().then((receipt) => {
-          if (receipt.status === 1) {
-            setIsBetTokenApproved(true);
-            showNotification({
-              icon: <IconCheck />,
-              color: "teal",
-              title: "Approve success",
-            });
-          }
-        });
+        tx.wait()
+          .then((receipt) => {
+            if (receipt.status === 1) {
+              setIsBetTokenApproved(true);
+              showNotification({
+                icon: <IconCheck />,
+                color: "teal",
+                title: "Approve success",
+              });
+            }
+          })
+          .finally(() => {
+            setIsApproveButtonLoading(false);
+          });
       })
       .catch((err) => {
         console.log("Approve failed", err);
+        setIsApproveButtonLoading(false);
         showNotification({
           icon: <IconX />,
           color: "red",
           title: "Approve failed",
           message: err.message,
         });
-      })
-      .finally(() => {
-        setIsApproveButtonLoading(false);
       });
   };
 

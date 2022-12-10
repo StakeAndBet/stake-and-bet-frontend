@@ -61,28 +61,30 @@ function StableSwap({
     tokenIn
       .approve(betStableSwapContract.address, ethers.constants.MaxUint256)
       .then((tx) => {
-        tx.wait().then((receipt) => {
-          if (receipt.status === 1) {
-            setIsTokenInApproved(true);
-            showNotification({
-              icon: <IconCheck />,
-              color: "teal",
-              title: "Approve success",
-            });
-          }
-        });
+        tx.wait()
+          .then((receipt) => {
+            if (receipt.status === 1) {
+              setIsTokenInApproved(true);
+              showNotification({
+                icon: <IconCheck />,
+                color: "teal",
+                title: "Approve success",
+              });
+            }
+          })
+          .finally(() => {
+            setIsButtonLoading(false);
+          });
       })
       .catch((err) => {
         console.log("Approve failed", err);
+        setIsButtonLoading(false);
         showNotification({
           icon: <IconX />,
           color: "red",
           title: "Approve failed",
           message: err.message,
         });
-      })
-      .finally(() => {
-        setIsButtonLoading(false);
       });
   };
 
@@ -98,29 +100,31 @@ function StableSwap({
 
     functionToSend
       .then((tx) => {
-        tx.wait().then((receipt) => {
-          if (receipt.status === 1) {
-            showNotification({
-              icon: <IconCheck />,
-              color: "teal",
-              title: "Swap Successful",
-            });
-            getTokenInBalance();
-            getTokenOutBalance();
-          }
-        });
+        tx.wait()
+          .then((receipt) => {
+            if (receipt.status === 1) {
+              showNotification({
+                icon: <IconCheck />,
+                color: "teal",
+                title: "Swap Successful",
+              });
+              getTokenInBalance();
+              getTokenOutBalance();
+            }
+          })
+          .finally(() => {
+            setIsButtonLoading(false);
+          });
       })
       .catch((err) => {
         console.log("Swap failed", err);
+        setIsButtonLoading(false);
         showNotification({
           icon: <IconX />,
           color: "red",
           title: "Swap failed",
           message: err.message,
         });
-      })
-      .finally(() => {
-        setIsButtonLoading(false);
       });
   };
 
@@ -133,7 +137,6 @@ function StableSwap({
   useEffect(() => {
     const getSwapRatio = async () => {
       const ratio = await betStableSwapContract.SWAP_RATIO();
-      console.log("getSwapRatio", ratio.toString());
       setSwapRatio(ratio);
     };
     getSwapRatio();
