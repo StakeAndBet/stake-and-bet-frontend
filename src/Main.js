@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import {
   Title,
@@ -12,7 +13,7 @@ import {
 } from "@mantine/core";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getContract } from "@wagmi/core";
-import { useSigner, erc20ABI } from "wagmi";
+import { useProvider, useSigner, erc20ABI } from "wagmi";
 import StableSwap from "./pages/stable-swap";
 import ManageBets from "./pages/manage-bets";
 import Stacking from "./pages/stacking";
@@ -37,6 +38,7 @@ function Main() {
 
   // Get signer
   const { data: signer, isError, isLoading } = useSigner();
+  const { data: provider } = useProvider();
 
   // Instantiate contracts
   const betTokenContract = getContract({
@@ -64,6 +66,24 @@ function Main() {
     abi: BET_POOL_ABI,
     signerOrProvider: signer,
   });
+
+  // State variables
+  const [betTokenBalance, setBetTokenBalance] = useState(0);
+
+  // Fetch user token balance
+  useEffect(() => {
+    if (signer) {
+      const provider = signer.provider;
+      const subscription = provider.on("block", async (block) => {
+        betTokenContract.balanceOf(signer.getAddress()).then((balance) => {
+          setBetTokenBalance(balance);
+        });
+      });
+      return () => {
+        subscription.removeAllListeners();
+      };
+    }
+  }, [signer]);
 
   // useEffect(() => {
   //   if (signer) {
@@ -149,6 +169,7 @@ function Main() {
                     signer={signer}
                     betTokenContract={betTokenContract}
                     betManagerContract={betManagerContract}
+                    betTokenBalance={betTokenBalance}
                   />
                 }
               />
@@ -159,6 +180,7 @@ function Main() {
                     signer={signer}
                     betTokenContract={betTokenContract}
                     betPoolContract={betPoolContract}
+                    betTokenBalance={betTokenBalance}
                   />
                 }
               />

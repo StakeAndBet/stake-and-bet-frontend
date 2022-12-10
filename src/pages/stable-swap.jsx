@@ -16,6 +16,7 @@ function StableSwap({
   betTokenContract,
   betStableSwapContract,
   stableTokenContract,
+  betTokenBalance
 }) {
   // State variables
   const [swapRatio, setSwapRatio] = useState(0);

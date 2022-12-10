@@ -34,6 +34,7 @@ function Stacking({
     signer,
     betTokenContract,
     betPoolContract,
+    betTokenBalance
 }) {
 
     // State variables
@@ -43,7 +44,7 @@ function Stacking({
     const [sabInRewardPool, setSabInRewardPool] = useState(0);
     const [sabUserTokenInStackingPool, setSabUserTokenInStackingPool] = useState(0);
     const [sabUserReward, setSabUserReward] = useState(0);
-    const [sabUserBalance, setSabUserBalance] = useState(0);
+//    const [sabUserBalance, setSabUserBalance] = useState();
     const [sabAmountToStake, setSabAmountToStake] = useState(0);
     const [isButtonLoading, setIsButtonLoading] = useState(false);
     const [isWithdrawButtonLoading, setIsWithdrawButtonLoading] = useState(false);
@@ -62,8 +63,8 @@ function Stacking({
         setSabInRewardPool(getSabInRewardPool.sub(getTotalSabInStackingPool));
         const getSabUserTokenInStackingPool = await betPoolContract.balanceOf(signer.getAddress());
         setSabUserTokenInStackingPool(getSabUserTokenInStackingPool);
-        const balance = await betTokenContract.balanceOf(signer.getAddress());
-        setSabUserBalance(balance);
+ //       const balance = await betTokenContract.balanceOf(signer.getAddress());
+//        setSabUserBalance(balance);
 
     };
 
@@ -339,7 +340,7 @@ function Stacking({
             </Group>
             <Group position="center" spacing="xs">
                 <Text ta="bottoms">
-                    Your balance : {ethers.utils.formatEther(sabUserBalance).toString()}
+                    Your balance : {ethers.utils.formatEther(betTokenBalance).toString()}
                 </Text>
             </Group>
             <Group position="center" spacing="xs">
@@ -347,7 +348,7 @@ function Stacking({
                     <Button
                         disabled={
                             sabAmountToStake <= 0 ||
-                            ethers.utils.parseEther(sabAmountToStake.toString()).gt(sabUserBalance)
+                            ethers.utils.parseEther(sabAmountToStake.toString()).gt(betTokenBalance)
                         }
                         loading={isButtonLoading}
                         onClick={() => stake()}
