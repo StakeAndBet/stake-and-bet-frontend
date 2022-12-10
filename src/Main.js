@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Switch, Route, Link, useLocation } from "react-router-dom";
 import {
   Title,
   Box,
@@ -111,7 +111,7 @@ function Main() {
             });
         })
       );
-      
+
       return () => {
         subscriptions.forEach((subscription) =>
           subscription.removeAllListeners()
@@ -176,14 +176,14 @@ function Main() {
                   betPoolContract={betPoolContract}
                   betTokensToClaimFromBetManager={betTokensToClaimFromBetManager}
                   betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
-                  />
+                />
                 <ConnectButton />
               </Flex>
             </Header>
           }
         >
           <Box sx={{ paddingLeft: 10 }}>
-            <Routes>
+            <Switch>
               <Route path="/" element={<h1>Home</h1>} />
               <Route
                 path="stable-swap"
@@ -219,7 +219,7 @@ function Main() {
                   />
                 }
               />
-            </Routes>
+            </Switch>
           </Box>
         </AppShell>
       )}
