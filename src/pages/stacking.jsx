@@ -97,13 +97,14 @@ function Stacking({
                 setIsButtonLoading(false);
             });
     };
-
+    // Event "Staked"
     const stake = async () => {
         setIsButtonLoading(true);
         betPoolContract.stake(ethers.utils.parseEther(amountToStake.toString()))
             .then((tx) => {
                 tx.wait().then((receipt) => {
-                    if (receipt.status === 1) {
+                    //Check if receipt contains Staked event
+                    if (receipt.events.find((event) => event.event === "Staked")) {
                         showNotification({
                             icon: <IconCheck />,
                             color: "teal",
@@ -133,7 +134,8 @@ function Stacking({
         betPoolContract.getReward()
             .then((tx) => {
                 tx.wait().then((receipt) => {
-                    if (receipt.status === 1) {
+                    //Check if receipt contains RewardPaid event
+                    if (receipt.events.find((event) => event.event === "RewardPaid")) {
                         showNotification({
                             icon: <IconCheck />,
                             color: "teal",
@@ -163,7 +165,9 @@ function Stacking({
         betPoolContract.exit()
             .then((tx) => {
                 tx.wait().then((receipt) => {
-                    if (receipt.status === 1) {
+                    //Check if receipt contains Withdrawn event
+                    if (receipt.events.find((event) =>
+                        event.event === "Withdrawn")) {
                         showNotification({
                             icon: <IconCheck />,
                             color: "teal",
@@ -290,7 +294,7 @@ function Stacking({
                 </Box>
             </Group>
             <Group position="center" spacing="xs">
-                <Text style={{ padding: "5px 5px 0px 5px"}}>
+                <Text style={{ padding: "5px 5px 0px 5px" }}>
                     Your balance : {ethers.utils.formatEther(betTokenBalance).toString()} SAB
                 </Text>
             </Group>
@@ -332,9 +336,9 @@ function Stacking({
                 )}
             </Group>
             <Group position="center" spacing="xs">
-               
+
                 <Button
-                    disabled={ 
+                    disabled={
                         BigNumber.from(betTokensToClaimFromBetPool).eq(0)
                     }
                     loading={isWithdrawButtonLoading}

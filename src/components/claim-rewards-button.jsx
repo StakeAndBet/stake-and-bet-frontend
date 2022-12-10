@@ -14,7 +14,8 @@ function ClaimRewardsButton({ signer, betManagerContract, betPoolContract, betTo
             .claimTokens()
             .then((tx) => {
                 tx.wait().then((receipt) => {
-                    if (receipt.status === 1) {
+                    //Check if receipt contains TokenClaimed event
+                    if (receipt.events.find((event) => event.event === "TokenClaimed")) {
                         showNotification({
                             icon: <IconCheck />,
                             color: "teal",
@@ -43,7 +44,8 @@ function ClaimRewardsButton({ signer, betManagerContract, betPoolContract, betTo
             .getReward()
             .then((tx) => {
                 tx.wait().then((receipt) => {
-                    if (receipt.status === 1) {
+                    //Check if receipt contains RewardPaid event
+                    if (receipt.events.find((event) => event.event === "RewardPaid")) {
                         showNotification({
                             icon: <IconCheck />,
                             color: "teal",
