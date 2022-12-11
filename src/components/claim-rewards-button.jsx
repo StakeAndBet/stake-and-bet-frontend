@@ -109,9 +109,9 @@ function ClaimRewardsButton({
         color="dark.4"
         onClick={claimRewardsFromBetPool}
         loading={isStackingRewardsButtonLoading}
-        disabled={BigNumber.from(betTokensToClaimFromBetPool).eq(1)}
+        disabled={BigNumber.from(betTokensToClaimFromBetPool).eq(0)}
       >
-        {BigNumber.from(betTokensToClaimFromBetPool).eq(1) ? (
+        {BigNumber.from(betTokensToClaimFromBetPool).eq(0) ? (
           <Text>No stacking rewards</Text>
         ) : (
           <Flex justify="center" align="center" direction="column">
