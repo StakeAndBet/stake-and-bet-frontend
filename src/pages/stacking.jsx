@@ -22,10 +22,9 @@ function Stacking({
   // State variables
   const [totalBetTokensInStackingPool, setTotalBetTokensInStackingPool] =
     useState(0);
-  const [betPoolRewardPerToken, setBetPoolRewardPerToken] = useState(0);
   const [betPoolAPR, setBetPoolAPR] = useState(0);
   const [betTokensInRewardPool, setBetTokensInRewardPool] = useState(0);
-  const [userBetTokensInStackingPool, setUserbetTokensInStackingPool] =
+  const [userBetTokensInStackingPool, setUserBetTokensInStackingPool] =
     useState(0);
   const [amountToStake, setAmountToStake] = useState(0);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
@@ -38,32 +37,36 @@ function Stacking({
   ] = useState(7);
 
   const getStakingInfo = async () => {
-    const getTotalBetTokensInStackingPool = await betPoolContract.totalSupply();
-    setTotalBetTokensInStackingPool(getTotalBetTokensInStackingPool);
-    const getBetPoolRewardPerToken =
-      await betPoolContract.rewardPerTokenStored();
-    setBetPoolRewardPerToken(getBetPoolRewardPerToken);
-    const getBetTokensInRewardPool = await betTokenContract.balanceOf(
+    const _totalBetTokensInStackingPool = await betPoolContract.totalSupply();
+    setTotalBetTokensInStackingPool(_totalBetTokensInStackingPool);
+    const _betTokensInRewardPool = await betTokenContract.balanceOf(
       betPoolContract.address
     );
     setBetTokensInRewardPool(
-      getBetTokensInRewardPool.sub(getTotalBetTokensInStackingPool)
+      _betTokensInRewardPool.sub(_totalBetTokensInStackingPool)
     );
-    const getUserbetTokensInStackingPool = await betPoolContract.balanceOf(
+    const _userBetTokensInStackingPool = await betPoolContract.balanceOf(
       signer.getAddress()
     );
-    setUserbetTokensInStackingPool(getUserbetTokensInStackingPool);
+    setUserBetTokensInStackingPool(_userBetTokensInStackingPool);
+    return [_betTokensInRewardPool, _totalBetTokensInStackingPool];
+  };
+
+  const getFullStackingData = async () => {
+    const [_betTokensInRewardPool, _totalBetTokensInStackingPool] = await getStakingInfo();
+    calculateAPR(_betTokensInRewardPool, _totalBetTokensInStackingPool);
+
   };
 
   // APR = (Total Staking Rewards / Total Staked Tokens) x(365 / Length of Staking Period) x 100
   // Where ‘Total Staking Rewards’ is the total rewards earned from staking, ‘Total Staked Tokens’ is the total amount of tokens staked, and ‘Length of Staking Period’ is the length of time for which the tokens were staked.
 
-  const calculateAPR = () => {
-    if (betTokensInRewardPool === 0 || totalBetTokensInStackingPool === 0)
+  const calculateAPR = (_betTokensInRewardPool, _totalBetTokensInStackingPool) => {
+    if (_betTokensInRewardPool === 0 || _totalBetTokensInStackingPool === 0)
       return;
-    const totalStakingRewards = ethers.utils.formatEther(betTokensInRewardPool);
+    const totalStakingRewards = ethers.utils.formatEther(_betTokensInRewardPool);
     const totalStakedTokens = ethers.utils.formatEther(
-      totalBetTokensInStackingPool
+      _totalBetTokensInStackingPool
     );
     const apr =
       (((totalStakingRewards / totalStakedTokens) * 365) /
@@ -131,8 +134,7 @@ function Stacking({
                 color: "teal",
                 title: "Stake Successful",
               });
-              getStakingInfo();
-              calculateAPR();
+              getFullStackingData();
             }
           })
           .finally(() => {
@@ -164,8 +166,7 @@ function Stacking({
               color: "teal",
               title: "Withdraw Successful",
             });
-            getStakingInfo();
-            calculateAPR();
+            getFullStackingData();
           }
         });
       })
@@ -196,8 +197,7 @@ function Stacking({
               color: "teal",
               title: "Unstake Successful",
             });
-            getStakingInfo();
-            calculateAPR();
+            getFullStackingData();
           }
         });
       })
@@ -216,9 +216,10 @@ function Stacking({
   };
 
   useEffect(() => {
-    getStakingInfo();
-    getIsTokenInApproved();
-    calculateAPR();
+    if (signer) {
+      getFullStackingData();
+      getIsTokenInApproved();
+    }
   }, [signer]);
 
   return (

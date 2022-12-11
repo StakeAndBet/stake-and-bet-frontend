@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Button, Progress, Table, Modal, Switch } from "@mantine/core";
 import { ethers } from "ethers";
 import PlaceBets from "../components/place-bets";
+import { showNotification } from "@mantine/notifications";
+import { IconCheck, IconX } from "@tabler/icons";
 
 function ManageBets({
   signer,
@@ -16,12 +18,53 @@ function ManageBets({
     useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
+  const [isUserSessionManager, setIsUserSessionManager] = useState(false);
 
   const [showHistory, setShowHistory] = useState(false);
 
   const convertTimestampToDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return date.toLocaleDateString();
+  };
+
+  const hasSessionManager = async () => {
+    const isSessionManager = await betManagerContract.hasRole(
+      betManagerContract.BETTING_SESSION_MANAGER_ROLE()
+      , signer.getAddress()
+    );
+    return isSessionManager;
+  };
+
+  const endBettingSession = async (sessionId) => {
+
+    console.log("Ending session: ", sessionId);
+    betManagerContract.endBettingSession(sessionId).then((tx) => {
+      tx.wait().then((receipt) => {
+        if (receipt.events.find((event) => event.event === "BettingSessionEnded")) {
+          showNotification({
+            icon: <IconCheck />,
+            color: "teal",
+            title: "Betting session ended",
+          });
+        } else {
+          console.log("Something went wrong", receipt);
+        }
+      }).catch((error) => {
+        showNotification({
+          icon: <IconX />,
+          color: "red",
+          title: "Failed to end betting session",
+          message: error.message,
+        });
+      });
+    }).catch((error) => {
+      showNotification({
+        icon: <IconX />,
+        color: "red",
+        title: "Failed to end betting session",
+        message: error.message,
+      });
+    });
   };
 
   const convertSessionStateToString = (state, startTimestamp) => {
@@ -112,14 +155,22 @@ function ManageBets({
     }
   }, [signer, isModalOpen]);
 
+  useEffect(() => {
+    hasSessionManager().then((res) => {
+      setIsUserSessionManager(res);
+    });
+
+  }, [signer]);
+
   const rows = bettingSessions
     .filter((bettingSession) => {
       const state = convertSessionStateToString(
         bettingSession.state,
         bettingSession.startTimestamp
       );
-      return showHistory ? true : state != "Closed";
+      return showHistory ? true : state != "Closed" && state != "Settled";
     })
+    .sort((a, b) => b.startTimestamp - a.startTimestamp)
     .map((bettingSession) => {
       const startDate = convertTimestampToDate(bettingSession.startTimestamp);
       const endDate = convertTimestampToDate(bettingSession.endTimestamp);
@@ -148,16 +199,22 @@ function ManageBets({
             {
               <Button
                 disabled={
-                  state === "Closed" ||
                   state === "Settled" ||
-                  state === "Result Requested"
+                  !isUserSessionManager && (
+                    state === "Closed" ||
+                    state === "Result Requested"
+                  )
                 }
                 onClick={() => {
-                  setIsModalOpen(true);
-                  setSelectedSessionId(bettingSession.id);
+                  if (isUserSessionManager && state === "Closed") {
+                    endBettingSession(bettingSession.id);
+                  } else {
+                    setIsModalOpen(true);
+                    setSelectedSessionId(bettingSession.id);
+                  }
                 }}
               >
-                Place Bets
+                {state === "Open" ? "Place bets" : (isUserSessionManager ? "End session" : "Place bets")}
               </Button>
             }
           </td>

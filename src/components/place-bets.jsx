@@ -81,8 +81,8 @@ function PlaceBets({
     // Check if user isn't exceeding max bets per session
     if (
       totalMultiplier +
-        inputMultiplier +
-        totalTokensBetByUser / tokenAmountPerBet >
+      inputMultiplier +
+      totalTokensBetByUser / tokenAmountPerBet >
       maxBetsNumber()
     ) {
       showNotification({
@@ -150,9 +150,13 @@ function PlaceBets({
             setInputMultiplier(1);
             closeModalCallback();
           }
-        });
+        })
+          .finally(() => {
+            setIsPlaceBetsButtonLoading(false);
+          })
       })
       .catch((err) => {
+        setIsPlaceBetsButtonLoading(false);
         showNotification({
           icon: <IconX />,
           color: "red",
@@ -160,9 +164,6 @@ function PlaceBets({
           message: err.message,
         });
       })
-      .finally(() => {
-        setIsPlaceBetsButtonLoading(false);
-      });
   };
 
   useEffect(() => {
