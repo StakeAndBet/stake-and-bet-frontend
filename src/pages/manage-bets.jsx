@@ -24,7 +24,7 @@ function ManageBets({
 
   const convertTimestampToDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
-    return date.toLocaleDateString();
+    return date.toLocaleString();
   };
 
   const hasSessionManager = async () => {
@@ -190,7 +190,6 @@ function ManageBets({
         <tr key={bettingSession.id}>
           <td>{bettingSession.twitterUserId}</td>
           <td>{startDate}</td>
-          <td>{endDate}</td>
           <td>{betResult}</td>
           <td>{totalTokensBetByUser}</td>
           <td>{totalTokensBet}</td>
@@ -254,8 +253,7 @@ function ManageBets({
             <thead>
               <tr>
                 <th>Twitter User Id</th>
-                <th>Start</th>
-                <th>End</th>
+                <th>Date</th>
                 <th>Bet Result</th>
                 <th>Your Tokens Bet</th>
                 <th>All Tokens Bet</th>

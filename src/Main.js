@@ -7,11 +7,7 @@ import {
   Navbar,
   Header,
   NavLink,
-  Loader,
   Flex,
-  Footer,
-  Aside,
-  Center,
 } from "@mantine/core";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getContract } from "@wagmi/core";
@@ -80,7 +76,6 @@ function Main() {
 
   // Fetch user token balance
   useEffect(() => {
-    console.log("Signer : ", signer);
     if (signer) {
       var subscriptions = [];
       const provider = signer.provider;
