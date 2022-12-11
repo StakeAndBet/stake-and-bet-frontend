@@ -92,11 +92,11 @@ function StableSwap({
     setIsButtonLoading(true);
     const functionToSend = !toggleSwapDirection
       ? betStableSwapContract.depositStableTokenForBetToken(
-          ethers.utils.parseEther(amountIn.toString())
-        )
+        ethers.utils.parseEther(amountIn.toString())
+      )
       : betStableSwapContract.burnBetTokenForStableToken(
-          ethers.utils.parseEther(amountIn.toString())
-        );
+        ethers.utils.parseEther(amountIn.toString())
+      );
 
     functionToSend
       .then((tx) => {
@@ -156,7 +156,6 @@ function StableSwap({
           removeTrailingZeros
           withAsterisk
           hideControls
-          required
         />
         <p>
           Your balance:
@@ -177,7 +176,6 @@ function StableSwap({
           removeTrailingZeros
           withAsterisk
           hideControls
-          required
         />
         <p>
           Your balance: {ethers.utils.formatEther(tokenOutBalance).toString()}
