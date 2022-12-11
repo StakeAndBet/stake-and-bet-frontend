@@ -121,7 +121,7 @@ function Main() {
 
   return (
     <>
-      {signer && (
+      {true && (
         <AppShell
           padding="md"
           navbar={
