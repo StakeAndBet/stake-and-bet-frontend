@@ -7,6 +7,7 @@ import {
   Navbar,
   Header,
   NavLink,
+  Loader,
   Flex,
   Footer,
   Aside,
@@ -121,7 +122,7 @@ function Main() {
 
   return (
     <>
-      {true && (
+      {signer ? (
         <AppShell
           padding="md"
           navbar={
@@ -222,8 +223,7 @@ function Main() {
               />
             </Routes>
           </Box>
-        </AppShell>
-      )}
+        </AppShell>) : (<Loader />)}
     </>
   );
 }
