@@ -184,7 +184,7 @@ function ManageBets({
       const totalTokensBetByUser = ethers.utils.formatEther(
         bettingSession.totalTokensBetByUser
       );
-      const betResult = ethers.utils.formatEther(bettingSession.betResult);
+      const betResult = bettingSession.betResult.toString();
 
       return (
         <tr key={bettingSession.id}>
