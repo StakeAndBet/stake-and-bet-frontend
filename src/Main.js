@@ -11,6 +11,7 @@ import {
   Flex,
   Footer,
   Aside,
+  Center,
 } from "@mantine/core";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { getContract } from "@wagmi/core";
@@ -79,6 +80,7 @@ function Main() {
 
   // Fetch user token balance
   useEffect(() => {
+    console.log("Signer : ", signer);
     if (signer) {
       var subscriptions = [];
       const provider = signer.provider;
@@ -122,54 +124,54 @@ function Main() {
 
   return (
     <>
-      {signer ? (
-        <AppShell
-          padding="md"
-          navbar={
-            <Navbar width={{ base: 200 }} p="xs">
-              <Navbar.Section>
-                <NavLink
-                  label="Home"
-                  component={Link}
-                  to="/"
-                  active={location.pathname === "/"}
-                />
-              </Navbar.Section>
-              <Navbar.Section>
-                <NavLink
-                  label="Swap Tokens"
-                  component={Link}
-                  to="/stable-swap"
-                  active={location.pathname === "/stable-swap"}
-                />
-              </Navbar.Section>
-              <Navbar.Section>
-                <NavLink
-                  label="Manage Bets"
-                  component={Link}
-                  to="/manage-bets"
-                  active={location.pathname === "/manage-bets"}
-                />
-              </Navbar.Section>
-              <Navbar.Section>
-                <NavLink
-                  label="Stacking"
-                  component={Link}
-                  to="/stacking"
-                  active={location.pathname === "/stacking"}
-                />
-              </Navbar.Section>
-            </Navbar>
-          }
-          header={
-            <Header height={60} p="xs">
-              <Flex
-                justify="space-between"
-                align="center"
-                direction="row"
-                wrap="nowrap"
-              >
-                <Title order={1}>Stake & Bet</Title>
+      <AppShell
+        padding="md"
+        navbar={
+          <Navbar width={{ base: 200 }} p="xs">
+            <Navbar.Section>
+              <NavLink
+                label="Home"
+                component={Link}
+                to="/"
+                active={location.pathname === "/"}
+              />
+            </Navbar.Section>
+            <Navbar.Section>
+              <NavLink
+                label="Swap Tokens"
+                component={Link}
+                to="/stable-swap"
+                active={location.pathname === "/stable-swap"}
+              />
+            </Navbar.Section>
+            <Navbar.Section>
+              <NavLink
+                label="Manage Bets"
+                component={Link}
+                to="/manage-bets"
+                active={location.pathname === "/manage-bets"}
+              />
+            </Navbar.Section>
+            <Navbar.Section>
+              <NavLink
+                label="Stacking"
+                component={Link}
+                to="/stacking"
+                active={location.pathname === "/stacking"}
+              />
+            </Navbar.Section>
+          </Navbar>
+        }
+        header={
+          <Header height={60} p="xs">
+            <Flex
+              justify="space-between"
+              align="center"
+              direction="row"
+              wrap="nowrap"
+            >
+              <Title order={1}>Stake & Bet</Title>
+              {signer && (
                 <ClaimRewardsButton
                   signer={signer}
                   betManagerContract={betManagerContract}
@@ -178,12 +180,13 @@ function Main() {
                     betTokensToClaimFromBetManager
                   }
                   betTokensToClaimFromBetPool={betTokensToClaimFromBetPool}
-                />
-                <ConnectButton />
-              </Flex>
-            </Header>
-          }
-        >
+                />)}
+              <ConnectButton />
+            </Flex>
+          </Header>
+        }
+      >
+        {signer ? (
           <Box sx={{ paddingLeft: 10 }}>
             <Routes>
               <Route path="/" element={<h1>Home</h1>} />
@@ -223,7 +226,8 @@ function Main() {
               />
             </Routes>
           </Box>
-        </AppShell>) : (<Loader />)}
+        ) : (<Box> Please connect your wallet</Box>)}
+      </AppShell>
     </>
   );
 }
