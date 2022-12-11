@@ -220,7 +220,7 @@ function PlaceBets({
 
   return (
     <>
-      <Group noWrap={true} align="center">
+      <Group align="end" noWrap={true}>
         <NumberInput
           defaultValue={0}
           min={0}
