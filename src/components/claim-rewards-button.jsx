@@ -94,8 +94,8 @@ function ClaimRewardsButton({
           <Text>No bet rewards</Text>
         ) : (
           <Flex justify="center" align="center" direction="column">
-            <Text ta="center">
-              Claim bet rewards <br></br>{" "}
+            <Text ta="center" inline="true">
+              Claim bet rewards <br></br>
               {ethers.utils
                 .formatEther(betTokensToClaimFromBetManager)
                 .toString()}{" "}
@@ -109,14 +109,14 @@ function ClaimRewardsButton({
         color="dark.4"
         onClick={claimRewardsFromBetPool}
         loading={isStackingRewardsButtonLoading}
-        disabled={BigNumber.from(betTokensToClaimFromBetPool).eq(0)}
+        disabled={BigNumber.from(betTokensToClaimFromBetPool).eq(1)}
       >
-        {BigNumber.from(betTokensToClaimFromBetPool).eq(0) ? (
+        {BigNumber.from(betTokensToClaimFromBetPool).eq(1) ? (
           <Text>No stacking rewards</Text>
         ) : (
           <Flex justify="center" align="center" direction="column">
-            <Text ta="center">
-              Claim stacking rewards <br></br>{" "}
+            <Text ta="center" inline="true">
+              Claim stacking rewards <br></br>
               {ethers.utils.formatEther(betTokensToClaimFromBetPool).toString()}{" "}
               SAB
             </Text>
