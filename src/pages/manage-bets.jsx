@@ -170,7 +170,7 @@ function ManageBets({
       );
       return showHistory ? true : state != "Closed" && state != "Settled";
     })
-    .sort((a, b) => b.startTimestamp - a.startTimestamp)
+    .sort((a, b) => a.startTimestamp - b.startTimestamp)
     .map((bettingSession) => {
       const startDate = convertTimestampToDate(bettingSession.startTimestamp);
       const endDate = convertTimestampToDate(bettingSession.endTimestamp);
@@ -248,6 +248,7 @@ function ManageBets({
             label="Show history"
             checked={showHistory}
             onChange={() => setShowHistory(!showHistory)}
+            style={{ 'margin': "5px 5px 10px 0px" }}
           />
           <Table withBorder withColumnBorders highlightOnHover>
             <thead>
