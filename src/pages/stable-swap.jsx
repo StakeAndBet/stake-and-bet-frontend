@@ -1,4 +1,4 @@
-import { Button, Group, NumberInput, Switch } from "@mantine/core";
+import { Button, Group, NumberInput, Switch, Text, SimpleGrid, Grid, Center } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { showNotification } from "@mantine/notifications";
@@ -92,11 +92,11 @@ function StableSwap({
     setIsButtonLoading(true);
     const functionToSend = !toggleSwapDirection
       ? betStableSwapContract.depositStableTokenForBetToken(
-          ethers.utils.parseEther(amountIn.toString())
-        )
+        ethers.utils.parseEther(amountIn.toString())
+      )
       : betStableSwapContract.burnBetTokenForStableToken(
-          ethers.utils.parseEther(amountIn.toString())
-        );
+        ethers.utils.parseEther(amountIn.toString())
+      );
 
     functionToSend
       .then((tx) => {
@@ -144,7 +144,7 @@ function StableSwap({
 
   return (
     <>
-      <Group>
+      <Group align="end">
         <NumberInput
           label={tokenInSymbol}
           precision={6}
@@ -154,16 +154,15 @@ function StableSwap({
           value={amountIn}
           onChange={(value) => setAmountIn(value || 0)}
           removeTrailingZeros
-          withAsterisk
           hideControls
           required
+          withAsterisk={false}
         />
         <p>
-          Your balance:
-          {ethers.utils.formatEther(tokenInBalance).toString()}
+          Your balance : {ethers.utils.formatEther(tokenInBalance).toString()}
         </p>
       </Group>
-      <Group>
+      <Group align="end">
         <NumberInput
           label={tokenOutSymbol}
           precision={6}
@@ -175,17 +174,16 @@ function StableSwap({
           }
           disabled
           removeTrailingZeros
-          withAsterisk
           hideControls
-          required
         />
         <p>
-          Your balance: {ethers.utils.formatEther(tokenOutBalance).toString()}
+          Your balance : {ethers.utils.formatEther(tokenOutBalance).toString()}
         </p>
       </Group>
-      <Group>
+      <Group align="stretch" position="left">
         {isTokenInApproved ? (
           <Button
+            style={{ 'margin': "10px 5px 10px 0px" }}
             disabled={
               amountIn <= 0 ||
               ethers.utils.parseEther(amountIn.toString()).gt(tokenInBalance)
@@ -197,17 +195,20 @@ function StableSwap({
           </Button>
         ) : (
           <Button
+              style={{ 'margin': "10px 5px 10px 0px" }}
             loading={isButtonLoading}
             onClick={() => approveToken(tokenIn)}
           >
             Approve
           </Button>
         )}
-        <Switch
+        <Switch 
+          style={{ } }
           label="Invert swap"
           checked={toggleSwapDirection}
           onChange={() => invertSwapDirection()}
         />
+
       </Group>
     </>
   );
