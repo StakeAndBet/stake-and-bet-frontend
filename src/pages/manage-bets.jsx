@@ -24,7 +24,7 @@ function ManageBets({
 
   const convertTimestampToDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
-    return date.toLocaleString();
+    return date.toDateString();
   };
 
   const hasSessionManager = async () => {
