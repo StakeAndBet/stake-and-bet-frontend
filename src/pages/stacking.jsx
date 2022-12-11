@@ -39,12 +39,11 @@ function Stacking({
   const getStakingInfo = async () => {
     const _totalBetTokensInStackingPool = await betPoolContract.totalSupply();
     setTotalBetTokensInStackingPool(_totalBetTokensInStackingPool);
-    const _betTokensInRewardPool = await betTokenContract.balanceOf(
+    const _betTokensInRewardPool = (await betTokenContract.balanceOf(
       betPoolContract.address
-    );
+    )).sub(_totalBetTokensInStackingPool);
     setBetTokensInRewardPool(
-      _betTokensInRewardPool.sub(_totalBetTokensInStackingPool)
-    );
+      _betTokensInRewardPool)
     const _userBetTokensInStackingPool = await betPoolContract.balanceOf(
       signer.getAddress()
     );
@@ -62,14 +61,10 @@ function Stacking({
   // Where ‘Total Staking Rewards’ is the total rewards earned from staking, ‘Total Staked Tokens’ is the total amount of tokens staked, and ‘Length of Staking Period’ is the length of time for which the tokens were staked.
 
   const calculateAPR = (_betTokensInRewardPool, _totalBetTokensInStackingPool) => {
-    if (_betTokensInRewardPool === 0 || _totalBetTokensInStackingPool === 0)
+    if (BigNumber.from(_betTokensInRewardPool).eq(0) || BigNumber.from(_totalBetTokensInStackingPool).eq(0))
       return;
-    const totalStakingRewards = ethers.utils.formatEther(_betTokensInRewardPool);
-    const totalStakedTokens = ethers.utils.formatEther(
-      _totalBetTokensInStackingPool
-    );
     const apr =
-      (((totalStakingRewards / totalStakedTokens) * 365) /
+      ((BigNumber.from(_betTokensInRewardPool).div(_totalBetTokensInStackingPool) * 365) /
         defaultStakingRewardDistributionDuration) *
       100;
     setBetPoolAPR(apr);
