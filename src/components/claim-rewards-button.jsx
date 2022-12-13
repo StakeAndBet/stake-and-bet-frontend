@@ -96,9 +96,9 @@ function ClaimRewardsButton({
           <Flex justify="center" align="center" direction="column">
             <Text ta="center" inline="true">
               Claim bet rewards <br></br>
-              {ethers.utils
+              {parseFloat(ethers.utils
                 .formatEther(betTokensToClaimFromBetManager)
-                .toString()}{" "}
+                  .toString()).toFixed(2)}{" "}
               SAB
             </Text>
           </Flex>
@@ -117,7 +117,7 @@ function ClaimRewardsButton({
           <Flex justify="center" align="center" direction="column">
             <Text ta="center" inline="true">
               Claim stacking rewards <br></br>
-              {ethers.utils.formatEther(betTokensToClaimFromBetPool).toString()}{" "}
+              {parseFloat(ethers.utils.formatEther(betTokensToClaimFromBetPool).toString()).toFixed(2)}{" "}
               SAB
             </Text>
           </Flex>

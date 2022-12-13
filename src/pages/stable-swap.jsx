@@ -159,7 +159,7 @@ function StableSwap({
           withAsterisk={false}
         />
         <p>
-          Your balance : {ethers.utils.formatEther(tokenInBalance).toString()}
+          Your balance : {parseFloat(ethers.utils.formatEther(tokenInBalance).toString()).toFixed(2)}
         </p>
       </Group>
       <Group align="end">
@@ -177,7 +177,7 @@ function StableSwap({
           hideControls
         />
         <p>
-          Your balance : {ethers.utils.formatEther(tokenOutBalance).toString()}
+          Your balance : {parseFloat(ethers.utils.formatEther(tokenOutBalance).toString()).toFixed(2)}
         </p>
       </Group>
       <Group align="stretch" position="left">

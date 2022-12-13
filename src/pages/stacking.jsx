@@ -57,16 +57,14 @@ function Stacking({
 
   };
 
-  // APR = (Total Staking Rewards / Total Staked Tokens) x(365 / Length of Staking Period) x 100
+  // APR = (Total Staking Rewards / Total Staked Tokens) x 100
   // Where ‘Total Staking Rewards’ is the total rewards earned from staking, ‘Total Staked Tokens’ is the total amount of tokens staked, and ‘Length of Staking Period’ is the length of time for which the tokens were staked.
+  // This APR is for the reward distribution period of 7 days.
 
   const calculateAPR = (_betTokensInRewardPool, _totalBetTokensInStackingPool) => {
-    if (BigNumber.from(_betTokensInRewardPool).eq(0) || BigNumber.from(_totalBetTokensInStackingPool).eq(0))
+    if (_betTokensInRewardPool.eq(0) || _totalBetTokensInStackingPool.eq(0))
       return;
-    const apr =
-      ((BigNumber.from(_betTokensInRewardPool).div(_totalBetTokensInStackingPool) * 365) /
-        defaultStakingRewardDistributionDuration) *
-      100;
+    const apr = _betTokensInRewardPool / _totalBetTokensInStackingPool * 100;
     setBetPoolAPR(apr);
   };
 
@@ -240,7 +238,7 @@ function Stacking({
           })}
         >
           Reward pool :<br></br>
-          {ethers.utils.formatEther(betTokensInRewardPool).toString()} SAB
+          {parseFloat(ethers.utils.formatEther(betTokensInRewardPool).toString()).toFixed(2)} SAB
         </Box>
         <Box
           sx={(theme) => ({
@@ -262,9 +260,9 @@ function Stacking({
           })}
         >
           Total stacked :<br></br>
-          {ethers.utils
+          {parseFloat(ethers.utils
             .formatEther(totalBetTokensInStackingPool)
-            .toString()}{" "}
+            .toString()).toFixed(2)}{" "}
           SAB
         </Box>
         <Box
@@ -286,8 +284,8 @@ function Stacking({
             },
           })}
         >
-          APR :<br></br>
-          {betPoolAPR} %
+          APR 7D :<br></br>
+          {parseFloat(betPoolAPR).toFixed(2)} %
         </Box>
         <Box
           sx={(theme) => ({
@@ -309,7 +307,7 @@ function Stacking({
           })}
         >
           Earned :<br></br>
-          {ethers.utils.formatEther(betTokensToClaimFromBetPool).toString()} SAB
+          {parseFloat(ethers.utils.formatEther(betTokensToClaimFromBetPool).toString()).toFixed(2)} SAB
         </Box>
         <Box
           sx={(theme) => ({
@@ -331,12 +329,12 @@ function Stacking({
           })}
         >
           Staked :<br></br>
-          {ethers.utils.formatEther(userBetTokensInStackingPool).toString()} SAB
+          {parseFloat(ethers.utils.formatEther(userBetTokensInStackingPool).toString()).toFixed(2)} SAB
         </Box>
       </Group>
       <Group position="center" spacing="xs">
         <Text style={{ padding: "5px 5px 0px 5px" }}>
-          Your balance : {ethers.utils.formatEther(betTokenBalance).toString()}{" "}
+          Your balance : {parseFloat(ethers.utils.formatEther(betTokenBalance).toString()).toFixed(2)}{" "}
           SAB
         </Text>
       </Group>

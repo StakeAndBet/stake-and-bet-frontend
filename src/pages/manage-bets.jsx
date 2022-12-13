@@ -180,10 +180,10 @@ function ManageBets({
       );
       const totalTokensBet = ethers.utils.formatEther(
         bettingSession.totalTokensBet
-      );
+      ).split(".")[0];
       const totalTokensBetByUser = ethers.utils.formatEther(
         bettingSession.totalTokensBetByUser
-      );
+      ).split(".")[0];
       const betResult = bettingSession.betResult.toString();
 
       return (
