@@ -184,7 +184,65 @@ function Main() {
         {signer ? (
           <Box sx={{ paddingLeft: 10 }}>
             <Routes>
-              <Route path="/" element={<h1>Home</h1>} />
+              <Route path="/" element=
+                {<>
+                <h2>Welcome !</h2>
+                  <Box sx={(theme) => ({
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+                  textAlign: 'left',
+                  padding: theme.spacing.xl,
+                  borderRadius: theme.radius.md,
+                  cursor: 'pointer',
+                  margin: '10px 0px',
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+                  },
+              })}> Every day earn rewards while your cryto influencers do the job on Twitter !<br></br>
+                You bet on the number of their daily tweets.
+                
+                  <h4>How does it work ?</h4>
+                You buy our in house betting chip: SAB, an ERC-20 Token.<br></br>
+                You can directly BET on today's topic.<br></br>
+                <br></br>
+                Anyway, you'll get the result after ONE day.<br></br>
+                Simple isn't it ?<br></br>
+                <br></br>
+                If you want to go further just stake your SAB on the DApp and you'll get your rewards.
+                </Box>
+                <Box sx={(theme) => ({
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+                  textAlign: 'left',
+                  padding: theme.spacing.xl,
+                  borderRadius: theme.radius.md,
+                  cursor: 'pointer',
+                  margin: '10px 0px',
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+                  },
+                })}><h4>Swap Token</h4>
+                  To use the service you need to buy the SAB Token.  <br></br>
+                  We currently only support DAI.
+
+                  <h4>Bet</h4>
+                  Consult the Bet of the day on the BET section. <br></br>
+                  1 - Guess your number Tweets. <br></br>
+                  2 - Lay your wager in SAB. <br></br>
+                  3 - Click on the ADD BET button. <br></br>
+                  The winners will share the Prize Pool based on their wager weight.  <br></br>
+
+                  <h4>Stake</h4>
+                  Stake your SAB and get rewarded.<br></br>
+                  Fluid Staking !<br></br>
+
+                  <h4>Terms & conditions</h4>
+                  The Stake & Bet service will take a 10% Fee on each bet.<br></br>
+                  All operations are secured on chain.<br></br>
+
+
+                </Box>
+                </>} />
               <Route
                 path="stable-swap"
                 element={
